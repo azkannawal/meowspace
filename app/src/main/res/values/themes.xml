@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.MeowSpace" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.MeowSpace.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/main_blue</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/meowspace_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.MeowSpace</item>
+    </style>
+    <style name="Theme.MeowSpace" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
 </resources>
