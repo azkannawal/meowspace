@@ -21,14 +21,13 @@ class RegisterViewModel : ViewModel() {
     var passwordVisible by mutableStateOf(false)
     var confirmPasswordVisible by mutableStateOf(false)
 
-    private val repo = AuthRepository(RetrofitInstance.authService)
+//    private val repo = AuthRepository(RetrofitInstance.authService)
 
     private fun isValidEmail(email: String): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     fun register(onSuccess: () -> Unit) {
-        println(">>> DEBUG kirim: name=$name, email=$email, password=$password")
         if (name.isBlank() || email.isBlank() || password.length < 8 || confirmPassword != password || !isValidEmail(email)) {
             errorMessage = when {
                 name.isBlank() || email.isBlank() || password.isBlank() -> "Isi semua field dengan benar"
@@ -44,8 +43,6 @@ class RegisterViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val request = RegisterRequest(fullName = name, email = email, password = password)
-
-
                 val response = RetrofitInstance.authService.register(request)
 
                 if (response.code() == 201 && response.body() != null) {
