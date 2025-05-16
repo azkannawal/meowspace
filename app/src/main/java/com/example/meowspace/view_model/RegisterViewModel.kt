@@ -21,8 +21,6 @@ class RegisterViewModel : ViewModel() {
     var passwordVisible by mutableStateOf(false)
     var confirmPasswordVisible by mutableStateOf(false)
 
-//    private val repo = AuthRepository(RetrofitInstance.authService)
-
     private fun isValidEmail(email: String): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }

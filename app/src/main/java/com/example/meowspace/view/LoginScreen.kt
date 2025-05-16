@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -40,7 +41,6 @@ fun LoginScreen(
     context: Context,
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onBackClick: () -> Unit = {}
 ) {
     // Buat TokenManager & Repository manual
     val tokenManager = remember { TokenManager(context) }
@@ -61,22 +61,22 @@ fun LoginScreen(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        IconButton(onClick = onBackClick, modifier = Modifier.align(Alignment.Start)) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-        }
-
         Spacer(modifier = Modifier.height(8.dp))
 
         Image(
             painter = painterResource(id = R.drawable.meowspace_logo_blue),
             contentDescription = "Logo",
             modifier = Modifier
-                .height(100.dp)
+                .height(160.dp)
                 .padding(vertical = 16.dp)
         )
 
         OutlinedTextField(
             value = viewModel.email,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF2196F3),
+                unfocusedBorderColor = Color(0xFF2196F3)
+            ),
             onValueChange = { viewModel.email = it },
             label = { Text("Email") },
             modifier = Modifier
@@ -88,6 +88,10 @@ fun LoginScreen(
 
         OutlinedTextField(
             value = viewModel.password,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF2196F3),
+                unfocusedBorderColor = Color(0xFF2196F3)
+            ),
             onValueChange = { viewModel.password = it },
             label = { Text("Password") },
             visualTransformation = if (viewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -133,7 +137,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         TextButton(onClick = onNavigateToRegister) {
-            Text("Sign up", color = Color(0xFF2196F3))
+            Text("Don't have an account? Sign Up", color = Color(0xFF2196F3))
         }
     }
 }
