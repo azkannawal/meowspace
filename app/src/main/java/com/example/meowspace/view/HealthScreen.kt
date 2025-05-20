@@ -3,6 +3,8 @@ package com.example.meowspace.view
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -27,15 +30,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.meowspace.R
+import com.example.meowspace.ui.theme.LexendFont
 
 
 @Composable
@@ -43,15 +51,13 @@ fun HealthScreen(navController: NavController, context: Context = LocalContext.c
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
     ) {
-        // Header
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(start = 24.dp, top = 24.dp, end = 24.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.meowspace_logo),
+                painter = painterResource(id = R.drawable.frame_36),
                 contentDescription = null,
                 modifier = Modifier
                     .size(48.dp)
@@ -63,30 +69,36 @@ fun HealthScreen(navController: NavController, context: Context = LocalContext.c
                 Text("Malang, Indonesia", fontSize = 12.sp)
             }
             Spacer(modifier = Modifier.weight(1f))
-            Icon(imageVector = Icons.Default.Notifications, contentDescription = null)
+            Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
             Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = null)
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Title
-        Text(
-            "Konsultasi Kesehatan Kucing",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color(0xFF204387)
-        )
-        Text(
-            "Rekomendasi Dokter",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color(0xFF204387)
-        )
-
         Spacer(modifier = Modifier.height(16.dp))
+
+        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+            Text(
+                text = "Konsultasi Kesehatan Kucing",
+                fontFamily = FontFamily(Font(R.font.lexend_bold)),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 20.sp,
+                color = Color(0xFF2E5E91)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Rekomendasi Dokter",
+                fontFamily = FontFamily(Font(R.font.lexend_regular)),
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                color = Color(0xFF1A2F4F)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Doctor List
         LazyColumn {
-            items(3) {
+            items(4) {
                 DoctorCard()
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -98,41 +110,87 @@ fun HealthScreen(navController: NavController, context: Context = LocalContext.c
 fun DoctorCard() {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
-            .padding(12.dp),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(id = R.drawable.meowspace_logo),
+            painter = painterResource(id = R.drawable.rectangle_76),
             contentDescription = null,
             modifier = Modifier
-                .size(72.dp)
-                .clip(RoundedCornerShape(16.dp)),
-            contentScale = ContentScale.Crop
+                .size(160.dp),
         )
+        Column(modifier = Modifier.padding(end = 24.dp)){
+            Text(
+                "Dr. Rina Masturina",
+                fontFamily = FontFamily(Font(R.font.lexend_regular)),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 18.sp,
+                color = Color(0xFF1A2B41)
+            )
+            Text(
+                "Veterinary Cardiologist",
+                fontFamily = FontFamily(Font(R.font.lexend_regular)),
+                fontWeight = FontWeight.Normal,
+                fontSize = 12.sp,
+                color = Color(0xFFFF6600),
+            )
+            Text(
+                "6 Years of Experience",
+                fontFamily = FontFamily(Font(R.font.lexend_regular)),
+                fontSize = 12.sp,
+                color = Color(0xFFB0B0B0),
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
 
-        Spacer(modifier = Modifier.width(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Column {
+                    Text(
+                        "Rp.",
+                        fontFamily = LexendFont,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = Color(0xFF1A2B41),
+                    )
+                    Row (verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            "89",
+                            fontFamily = LexendFont,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 36.sp,
+                            color = Color(0xFF1A2B41),
+                        )
+                        Text(
+                            "k",
+                            fontFamily = LexendFont,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = Color(0xFF1A2B41),
+                        )
+                    }
+                }
 
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text("Dr. Rina Masturina", fontWeight = FontWeight.Bold)
-            Text("Veterinary Cardiologist", color = Color(0xFFFF6600), fontSize = 12.sp)
-            Text("6 Years of Experience", fontSize = 12.sp)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Rp. 89k", fontWeight = FontWeight.Bold)
+                Box(
+                    modifier = Modifier
+                        .shadow(2.dp, RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFD8EFFF))
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        "Book Now",
+                        fontFamily = LexendFont,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF1A2B41),
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Button(
-            onClick = { /* TODO: handle booking */ },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8EFFF)),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text("Book Now!", color = Color.Black)
-        }
     }
 }

@@ -45,15 +45,12 @@ fun ProfileScreen(navController: NavController, context: Context = LocalContext.
             .padding(top = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header gray
         Box(
             modifier = Modifier
                 .height(160.dp)
                 .fillMaxWidth()
                 .background(Color(0xFFE0E0E0))
         )
-
-        // Avatar circle
         Box(
             modifier = Modifier
                 .offset(y = (-40).dp)
@@ -69,12 +66,8 @@ fun ProfileScreen(navController: NavController, context: Context = LocalContext.
                 modifier = Modifier.size(48.dp)
             )
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         Text("Kiehl", style = MaterialTheme.typography.titleLarge)
         Text("@kiehl_anak_kelo", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-
         Row(
             modifier = Modifier.padding(vertical = 12.dp),
             horizontalArrangement = Arrangement.Center
@@ -88,33 +81,19 @@ fun ProfileScreen(navController: NavController, context: Context = LocalContext.
                 Text("Following", style = MaterialTheme.typography.labelSmall)
             }
         }
-
-        Button(
-            onClick = { /* Switch Meow */ },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB3E5FC)),
-            shape = RoundedCornerShape(20.dp)
-        ) {
-            Text("Switch Meow")
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Tags
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(horizontal = 16.dp)) {
             InfoTag("Male")
             InfoTag("1 y.o")
             InfoTag("Persian")
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
         Text(
             "Hi paw lovers! my name is Kiehl... aku anak Kelo",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(16.dp),
             textAlign = TextAlign.Center
         )
-
         // Filter chips
         Row(
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -124,7 +103,6 @@ fun ProfileScreen(navController: NavController, context: Context = LocalContext.
             FilterChip("Photos")
             FilterChip("Videos")
         }
-
         // Grid dummy content
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),

@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -16,12 +17,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Send
@@ -49,41 +54,39 @@ fun FeedScreen(navController: NavController, context: Context = LocalContext.cur
             .fillMaxSize()
             .background(Color(0xFFF9FCFF))
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
     ) {
         StorySection()
         Spacer(modifier = Modifier.height(16.dp))
-        PostCard(
-            username = "Miko_kucing_jaksel",
-            age = "3 years old",
-            breed = "Mainecoon",
-            caption = "Miko hari ini jalan sore dulu 🐾😻 btw tadi ketemu kucing oren dia berantem WKWKWKW bener2 dah",
-            imageList = listOf(R.drawable.meowspace_logo, R.drawable.meowspace_logo),
-            likeCount = "6.2k",
-            commentCount = "2.1k",
-            shareCount = "346"
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        PostCard(
-            username = "Kiehllll789",
-            age = "2 years old",
-            breed = "Persian",
-            caption = "‼️LAGI CARI JODOH‼️ HELP repost yang mau cari pasangan kucing jantan reply yaah! ini kucing aku ganteng bgt kok",
-            imageList = listOf(R.drawable.meowspace_logo, R.drawable.meowspace_logo),
-            likeCount = "4.5k",
-            commentCount = "1.9k",
-            shareCount = "210"
-        )
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.weight(1f).padding(horizontal = 24.dp)
+        ) {
+            items(4) { index ->
+                PostCard(
+                    username = "Miko_kucing_jaksel",
+                    age = "3 years old",
+                    breed = "Mainecoon",
+                    caption = "Miko hari ini jalan sore dulu 🐾😻 btw tadi ketemu kucing oren dia berantem WKWKWKW bener2 dah",
+                    imageList = listOf(R.drawable.frame_51, R.drawable.frame_51),
+                    likeCount = "6.2k",
+                    commentCount = "2.1k",
+                    shareCount = "346"
+                )
+            }
+        }
+
     }
 }
 
 @Composable
 fun StorySection() {
+    val names = listOf("You", "Mikothecat", "Kucingoren", "Morganisa_", "Kitty", "Rock", "More")
     LazyRow(
+        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        items(5) { index ->
+        items(names) { name ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
                     modifier = Modifier
@@ -94,7 +97,7 @@ fun StorySection() {
                         .padding(2.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.meowspace_logo),
+                        painter = painterResource(id = R.drawable.frame_36),
                         contentDescription = "Story",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -103,7 +106,7 @@ fun StorySection() {
                     )
                 }
                 Text(
-                    text = listOf("You", "Mikothecat", "Kucingoren", "Morganisa_", "More")[index],
+                    text = name,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(top = 4.dp)
@@ -128,11 +131,11 @@ fun PostCard(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color(0xFFCCF2FF), shape = RoundedCornerShape(16.dp))
-            .padding(16.dp)
+            .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
-                painter = painterResource(id = R.drawable.meowspace_logo),
+                painter = painterResource(id = R.drawable.frame_36),
                 contentDescription = "Avatar",
                 modifier = Modifier
                     .size(48.dp)
@@ -141,6 +144,7 @@ fun PostCard(
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(username, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(6.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     InfoChip("Male", Color(0xFF1E3A5F))
                     InfoChip(age, Color(0xFFFFA63A))
@@ -181,8 +185,8 @@ fun PostCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             InteractionIcon(Icons.Default.Pets, likeCount)
-            InteractionIcon(Icons.Default.ChatBubbleOutline, commentCount)
-            InteractionIcon(Icons.Default.Send, shareCount)
+            InteractionIcon(Icons.Default.ChatBubble, commentCount)
+            InteractionIcon(Icons.Default.Bookmark, shareCount)
         }
     }
 }
@@ -192,7 +196,7 @@ fun InfoChip(text: String, bgColor: Color) {
     Box(
         modifier = Modifier
             .background(bgColor, shape = RoundedCornerShape(50))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = 8.dp)
     ) {
         Text(text = text, color = Color.White, fontSize = 10.sp)
     }
