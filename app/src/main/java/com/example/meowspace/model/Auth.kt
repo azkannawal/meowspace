@@ -26,3 +26,9 @@ data class RegisteredUser(
     val fullName: String,
     val email: String
 )
+
+data class UserProfileResponse(
+    val id: Int,
+    val fullName: String,
+    val email: String
+)

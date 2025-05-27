@@ -3,15 +3,22 @@ package com.example.meowspace
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalHospital
@@ -22,7 +29,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,10 +36,8 @@ import com.example.meowspace.view.RegisterScreen
 import com.example.meowspace.view.LoginScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.meowspace.ui.theme.MeowSpaceTheme
 import com.example.meowspace.view.HomeScreen
 import com.example.meowspace.view.ProfileScreen
@@ -42,6 +46,12 @@ import com.example.meowspace.view.WelcomeScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.example.meowspace.view.CatProfileScreen
 import com.example.meowspace.view.FeedScreen
 import com.example.meowspace.view.HealthScreen
 import com.example.meowspace.view.MarketScreen
@@ -59,11 +69,13 @@ class MainActivity : ComponentActivity() {
                 val currentBackStack by navController.currentBackStackEntryAsState()
                 val currentRoute = currentBackStack?.destination?.route
                 val showBottomBar = currentRoute in listOf("home", "profile", "feed", "market", "health")
+                val authRoutes = listOf("login", "register", "welcome")
+
 
                 Scaffold(
                     bottomBar = {
                         if (showBottomBar) {
-                            BottomNavigationBar(navController = navController)
+                            CustomBottomBar(navController = navController)
                         }
                     }
                 ) { innerPadding ->
@@ -72,18 +84,57 @@ class MainActivity : ComponentActivity() {
                         startDestination = "splash",
                         modifier = Modifier.padding(innerPadding),
                         enterTransition = {
-                            slideInVertically(initialOffsetY = { 1000 }) + fadeIn(animationSpec = tween(100))
+                            with(this) {
+                                val from = initialState.destination.route
+                                val to = targetState.destination.route
+                                if (from in authRoutes && to in authRoutes) {
+                                    slideInVertically(initialOffsetY = { 1000 }) + fadeIn(animationSpec = tween(100))
+                                } else {
+                                    fadeIn(animationSpec = tween(100))
+                                }
+                            }
                         },
                         exitTransition = {
-                            slideOutVertically(targetOffsetY = { 1000 }) + fadeOut(animationSpec = tween(100))
+                            with(this) {
+                                val from = initialState.destination.route
+                                val to = targetState.destination.route
+                                if (from in authRoutes && to in authRoutes) {
+                                    slideOutVertically(targetOffsetY = { 1000 }) + fadeOut(
+                                        animationSpec = tween(100)
+                                    )
+                                } else {
+                                    fadeOut(animationSpec = tween(100))
+                                }
+                            }
                         },
                         popEnterTransition = {
-                            slideInVertically(initialOffsetY = { -1000 }) + fadeIn(animationSpec = tween(100))
+                            with(this) {
+                                val from = initialState.destination.route
+                                val to = targetState.destination.route
+                                if (from in authRoutes && to in authRoutes) {
+                                    slideInVertically(initialOffsetY = { -1000 }) + fadeIn(
+                                        animationSpec = tween(100)
+                                    )
+                                } else {
+                                    fadeIn(animationSpec = tween(100))
+                                }
+                            }
                         },
                         popExitTransition = {
-                            slideOutVertically(targetOffsetY = { -1000 }) + fadeOut(animationSpec = tween(100))
+                            with(this) {
+                                val from = initialState.destination.route
+                                val to = targetState.destination.route
+                                if (from in authRoutes && to in authRoutes) {
+                                    slideOutVertically(targetOffsetY = { -1000 }) + fadeOut(
+                                        animationSpec = tween(100)
+                                    )
+                                } else {
+                                    fadeOut(animationSpec = tween(100))
+                                }
+                            }
                         }
-                    ) {
+                    )
+                    {
                         composable("splash") {
                             val context = LocalContext.current
                             SplashScreen(navController, context)
@@ -137,6 +188,10 @@ class MainActivity : ComponentActivity() {
                             val context = LocalContext.current
                             HealthScreen(navController, context)
                         }
+                        composable("catprofile") {
+                            val context = LocalContext.current
+                            CatProfileScreen(navController, context)
+                        }
                     }
                 }
             }
@@ -145,73 +200,68 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun CustomBottomBar(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    val items = listOf("home", "health", "feed", "market", "profile")
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    NavigationBar {
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-            selected = currentRoute == "home",
-            onClick = {
-                if (currentRoute != "home") {
-                    navController.navigate("home") {
-                        popUpTo("home") { inclusive = false }
-                        launchSingleTop = true
-                    }
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(Color.White, shape = RoundedCornerShape(32.dp))
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items.forEach { screen ->
+                val isSelected = currentRoute == screen
+                val icon = when (screen) {
+                    "home" -> Icons.Default.Home
+                    "health" -> Icons.Default.LocalHospital
+                    "feed" -> Icons.Default.Pets
+                    "market" -> Icons.Default.ShoppingBasket
+                    "profile" -> Icons.Default.Person
+                    else -> Icons.Default.Home
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(
+                            when {
+                                isSelected -> Color(0xFFD0F3FF) // biru muda
+                                else -> Color(0xFFF0F0F0) // abu muda
+                            }
+                        )
+                        .clickable {
+                            if (!isSelected) {
+                                navController.navigate(screen) {
+                                    popUpTo("home") { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = screen,
+                        tint = if (isSelected) Color.Black else Color.Gray
+                    )
                 }
             }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.LocalHospital, contentDescription = null) },
-            selected = currentRoute == "health",
-            onClick = {
-                if (currentRoute != "health") {
-                    navController.navigate("health") {
-                        popUpTo("home") { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
-            }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Pets, contentDescription = "Feed") },
-            selected = currentRoute == "feed",
-            onClick = {
-                if (currentRoute != "feed") {
-                    navController.navigate("feed") {
-                        popUpTo("home") { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
-            }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.ShoppingBasket, contentDescription = null) },
-            selected = currentRoute == "market",
-            onClick = {
-                if (currentRoute != "market") {
-                    navController.navigate("market") {
-                        popUpTo("home") { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
-            }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
-            selected = currentRoute == "profile",
-            onClick = {
-                if (currentRoute != "profile") {
-                    navController.navigate("profile") {
-                        popUpTo("home") { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
-            }
-        )
+        }
     }
 }
+
 
 
 

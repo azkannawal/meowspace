@@ -49,19 +49,19 @@ import com.example.meowspace.R
 
 @Composable
 fun FeedScreen(navController: NavController, context: Context = LocalContext.current) {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF9FCFF))
-            .verticalScroll(rememberScrollState())
+            .background(Color(0xFFF9FCFF)),
+        contentPadding = PaddingValues(vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        StorySection()
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.weight(1f).padding(horizontal = 24.dp)
-        ) {
-            items(4) { index ->
+        item {
+            StorySection()
+        }
+
+        items(4) { index ->
+            Box(modifier = Modifier.padding(horizontal = 24.dp)) {
                 PostCard(
                     username = "Miko_kucing_jaksel",
                     age = "3 years old",
@@ -74,9 +74,9 @@ fun FeedScreen(navController: NavController, context: Context = LocalContext.cur
                 )
             }
         }
-
     }
 }
+
 
 @Composable
 fun StorySection() {
@@ -131,7 +131,7 @@ fun PostCard(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color(0xFFCCF2FF), shape = RoundedCornerShape(16.dp))
-            .padding(20.dp)
+            .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(

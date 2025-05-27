@@ -116,7 +116,13 @@ fun MarketScreen(navController: NavController, context: Context = LocalContext.c
                 .padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Top Categories", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "Top Categories",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 16.sp,
+                )
+            )
+
             Text("See All", color = Color.Blue, fontSize = 14.sp)
         }
 

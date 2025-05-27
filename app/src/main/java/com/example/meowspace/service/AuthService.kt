@@ -4,8 +4,11 @@ import com.example.meowspace.model.AuthResponse
 import com.example.meowspace.model.LoginRequest
 import com.example.meowspace.model.LoginResponse
 import com.example.meowspace.model.RegisterRequest
+import com.example.meowspace.model.UserProfileResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthService {
@@ -14,4 +17,9 @@ interface AuthService {
 
     @POST("/users/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+
+    @GET("/users/profile")
+    suspend fun getProfile(
+        @Header("Authorization") token: String
+    ): Response<UserProfileResponse>
 }

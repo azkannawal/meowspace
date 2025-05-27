@@ -48,63 +48,67 @@ import com.example.meowspace.ui.theme.LexendFont
 
 @Composable
 fun HealthScreen(navController: NavController, context: Context = LocalContext.current) {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
+            .padding(bottom = 16.dp) // supaya tidak mentok
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(start = 24.dp, top = 24.dp, end = 24.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.frame_36),
-                contentDescription = null,
+        item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text("Kelo the Cat", fontWeight = FontWeight.Bold)
-                Text("Malang, Indonesia", fontSize = 12.sp)
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, top = 24.dp, end = 24.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.frame_36),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text("Kelo the Cat", fontWeight = FontWeight.Bold)
+                    Text("Malang, Indonesia", fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = null)
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = null)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                Text(
+                    text = "Konsultasi Kesehatan Kucing",
+                    fontFamily = FontFamily(Font(R.font.lexend_bold)),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
+                    color = Color(0xFF2E5E91)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Rekomendasi Dokter",
+                    fontFamily = FontFamily(Font(R.font.lexend_regular)),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = Color(0xFF1A2F4F)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-            Text(
-                text = "Konsultasi Kesehatan Kucing",
-                fontFamily = FontFamily(Font(R.font.lexend_bold)),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp,
-                color = Color(0xFF2E5E91)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Rekomendasi Dokter",
-                fontFamily = FontFamily(Font(R.font.lexend_regular)),
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                color = Color(0xFF1A2F4F)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
 
         // Doctor List
-        LazyColumn {
-            items(4) {
-                DoctorCard()
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+        items(4) {
+            DoctorCard()
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
+
 
 @Composable
 fun DoctorCard() {

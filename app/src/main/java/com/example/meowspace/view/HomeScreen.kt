@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -37,54 +38,77 @@ import com.example.meowspace.R
 import com.example.meowspace.service.TokenManager
 import androidx.compose.material.*
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.meowspace.view_model.ProfileViewModel
 
 @Composable
-fun HomeScreen(navController: NavController, context: Context = LocalContext.current) {
-        Column(
+fun HomeScreen(navController: NavController, context: Context? = null) {
+    val safeContext = context ?: LocalContext.current
+    val profileViewModel: ProfileViewModel = viewModel()
+
+    LaunchedEffect(Unit) {
+        profileViewModel.loadProfile(safeContext)
+    }
+
+    val userProfile = profileViewModel.userProfile
+    val isLoading = profileViewModel.isLoading
+
+    Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .background(Color.White)
         ) {
             HeaderSection(
-                userName = "Kelo the Cat",
+                userName = if (isLoading) "Loading..." else userProfile?.fullName ?: "Guest",
                 userImage = painterResource(R.drawable.frame_36),
-                onAddProfileClick = { /* action */ }
+                onAddProfileClick = {
+                    navController.navigate("catprofile")
+                }
             )
             SearchBar()
-            FeatureIcons()
-            OnlineConsultationCard()
+            FeatureIcons(navController)
+            OnlineConsultationCard(navController)
             CommunitySection()
-            Button(
-                onClick = {
-                    // Hapus token saat logout
-                    TokenManager(context).clearToken()
 
-                    // Navigasi ke login atau welcome
-                    navController.navigate("login") {
-                        popUpTo("home") { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }
-            ) {
-                Text("Logout")
-            }
             Spacer(modifier = Modifier.height(80.dp))
         }
+}
+
+@Composable
+fun FeatureIcons(navController: NavController) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 36.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        FeatureItem("Meow Feed", "frame_38") {
+            navController.navigate("feed")
+        }
+        FeatureItem("Meow Health", "frame_39") {
+            navController.navigate("health")
+        }
+        FeatureItem("Meow Market", "frame_40") {
+            navController.navigate("market")
+        }
+    }
 }
 
 @Composable
 fun HeaderSection(
     userName: String = "Kelo the Cat",
     userImage: Painter,
-    onAddProfileClick: () -> Unit = {}
+    onAddProfileClick: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -158,37 +182,33 @@ fun SearchBar() {
     OutlinedTextField(
         value = "",
         onValueChange = {},
-        placeholder = { Text("Cari produk, artikel, dokter ...") },
+        placeholder = { Text("Cari produk, artikel, dokter, lainnya", fontSize = 14.sp ) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(32.dp),
+        textStyle = TextStyle(
+            fontSize = 14.sp  // ukuran font input
+        ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp, start = 24.dp, end = 24.dp)
+            .padding(bottom = 20.dp, start = 24.dp, end = 24.dp)
     )
 }
 
 @Composable
-fun FeatureIcons() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 36.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        FeatureItem("Meow Feed", "frame_38")
-        FeatureItem("Meow Health", "frame_39")
-        FeatureItem("Meow Market", "frame_40")
-    }
-}
-
-@Composable
-fun FeatureItem(label: String, image: String) {
+fun FeatureItem(label: String, image: String, onClick: () -> Unit = {}) {
     val context = LocalContext.current
     val imageRes = remember(image) {
         context.resources.getIdentifier(image, "drawable", context.packageName)
     }
+    val interactionSource = remember { MutableInteractionSource() }
+    val rippleColor = Color(0xFFFFFFFF) // Ripple transparan halus
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = Modifier.clip(RoundedCornerShape(12.dp)) // biar ripple ada batasnya
+        .clickable(
+            interactionSource = interactionSource,
+            indication = rememberRipple(color = rippleColor),
+            onClick = onClick
+        ), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
                 .size(80.dp)
@@ -216,7 +236,7 @@ fun FeatureItem(label: String, image: String) {
 }
 
 @Composable
-fun OnlineConsultationCard() {
+fun OnlineConsultationCard(navController: NavController) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
@@ -235,14 +255,20 @@ fun OnlineConsultationCard() {
                 modifier = Modifier.size(120.dp)
             )
             Column(modifier = Modifier.weight(1f)) {
-                Text("Online Vet Consultation", fontWeight = FontWeight.Bold)
+                Text("Online Vet Consultation", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text("Chat with a veterinarian now!", fontSize = 12.sp)
                 Button(
-                    onClick = {},
+                    onClick = {navController.navigate("health")},
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7)),
                     modifier = Modifier.align(Alignment.End).padding(top = 8.dp)
                 ) {
-                    Text("CHAT NOW")
+                    Text(
+                        text = "Chat Now",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = 14.sp,
+                            color = Color(0xFFFAFAFA)
+                        )
+                    )
                 }
             }
 
@@ -300,7 +326,7 @@ fun CommunityCard(
                 text = title,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                color = Color.Black
+                color = Color.DarkGray
             )
             Text(
                 text = subtitle,
