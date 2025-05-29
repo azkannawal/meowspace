@@ -3,7 +3,6 @@ package com.example.meowspace.view
 
 import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,10 +21,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,16 +55,32 @@ fun CatProfileScreen(navController: NavController, context: Context = LocalConte
             modifier = Modifier
                 .offset(y = (-40).dp)
                 .size(80.dp)
-                .background(Color.White, shape = CircleShape)
-                .border(2.dp, Color.LightGray, shape = CircleShape),
+                .background(Color.White, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = "Avatar",
                 tint = Color.Gray,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier
+                    .size(96.dp)
+                    .background(Color.LightGray, shape = CircleShape)
+                    .padding(24.dp)
             )
+            IconButton(
+                onClick = { navController.navigate("addcatprofile") },
+                modifier = Modifier
+                    .offset(y = 50.dp)
+                    .size(20.dp)
+                    .background(Color.Cyan, shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add",
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
         Text("Kiehl", style = MaterialTheme.typography.titleLarge)
         Text("@kiehl_anak_kelo", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
@@ -95,7 +110,7 @@ fun CatProfileScreen(navController: NavController, context: Context = LocalConte
             modifier = Modifier.padding(16.dp),
             textAlign = TextAlign.Center
         )
-        // Filter chips
+
         Row(
             modifier = Modifier.padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -104,7 +119,7 @@ fun CatProfileScreen(navController: NavController, context: Context = LocalConte
             FilterChip("Photos")
             FilterChip("Videos")
         }
-        // Grid dummy content
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             contentPadding = PaddingValues(16.dp),

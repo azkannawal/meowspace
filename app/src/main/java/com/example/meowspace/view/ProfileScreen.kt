@@ -9,24 +9,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,35 +30,44 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.meowspace.R
+import com.example.meowspace.data.UserRepository
+import com.example.meowspace.service.RetrofitInstance
 import com.example.meowspace.service.TokenManager
 import com.example.meowspace.view_model.ProfileViewModel
 
 @Composable
-fun ProfileScreen(navController: NavController, context: Context? = null) {
-    val safeContext = context ?: LocalContext.current
-    val profileViewModel: ProfileViewModel = viewModel()
+fun ProfileScreen(navController: NavController, context: Context) {
 
-    LaunchedEffect(Unit) {
-        profileViewModel.loadProfile(safeContext)
+    val viewModel = remember {
+        val tokenManager = TokenManager(context)
+        val repository = UserRepository(
+            api = RetrofitInstance.userService,
+            tokenManager = tokenManager,
+            context = context
+        )
+        ProfileViewModel(repository)
     }
 
-    val userProfile = profileViewModel.userProfile
-    val isLoading = profileViewModel.isLoading
+    val userProfile by viewModel.userProfile.observeAsState()
+    val isLoading by viewModel.isLoading.observeAsState(true)
+
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
+    }
 
     val userName = if (isLoading) "Loading..." else userProfile?.fullName ?: "Guest"
     val userRole = "Regular"
@@ -161,7 +164,7 @@ fun ProfileScreen(navController: NavController, context: Context? = null) {
         item {
             Button(
                 onClick = {
-                    TokenManager(safeContext).clearToken()
+                    TokenManager(context).clearToken()
                     navController.navigate("welcome") {
                         popUpTo("home") { inclusive = true }
                         launchSingleTop = true

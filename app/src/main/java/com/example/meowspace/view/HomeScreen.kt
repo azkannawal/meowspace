@@ -4,63 +4,81 @@ import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
-import androidx.compose.material.icons.filled.Healing
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MedicalServices
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Store
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.meowspace.R
+import com.example.meowspace.data.UserRepository
+import com.example.meowspace.service.RetrofitInstance
 import com.example.meowspace.service.TokenManager
-import androidx.compose.material.*
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.meowspace.view_model.ProfileViewModel
 
 @Composable
-fun HomeScreen(navController: NavController, context: Context? = null) {
-    val safeContext = context ?: LocalContext.current
-    val profileViewModel: ProfileViewModel = viewModel()
+fun HomeScreen(navController: NavController, context: Context) {
 
-    LaunchedEffect(Unit) {
-        profileViewModel.loadProfile(safeContext)
+    val viewModel = remember {
+        val tokenManager = TokenManager(context)
+        val repository = UserRepository(
+            api = RetrofitInstance.userService,
+            tokenManager = tokenManager,
+            context = context
+        )
+        ProfileViewModel(repository)
     }
 
-    val userProfile = profileViewModel.userProfile
-    val isLoading = profileViewModel.isLoading
+    val userProfile by viewModel.userProfile.observeAsState()
+    val isLoading by viewModel.isLoading.observeAsState(true)
+
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
+    }
+
+    val userName = if (isLoading) "Loading..." else userProfile?.fullName ?: "Guest"
 
     Column(
             modifier = Modifier
@@ -69,7 +87,7 @@ fun HomeScreen(navController: NavController, context: Context? = null) {
                 .background(Color.White)
         ) {
             HeaderSection(
-                userName = if (isLoading) "Loading..." else userProfile?.fullName ?: "Guest",
+                userName = userName,
                 userImage = painterResource(R.drawable.frame_36),
                 onAddProfileClick = {
                     navController.navigate("catprofile")
@@ -154,7 +172,7 @@ fun HeaderSection(
                     )
                 )
                 Text(
-                    text = "Add your Meow profile ->",
+                    text = "Go to Meow profile ->",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = Color.White,
                         textDecoration = TextDecoration.Underline
@@ -183,10 +201,14 @@ fun SearchBar() {
         value = "",
         onValueChange = {},
         placeholder = { Text("Cari produk, artikel, dokter, lainnya", fontSize = 14.sp ) },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        leadingIcon = { Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = null,
+            modifier = Modifier.padding(start = 12.dp)
+        ) },
         shape = RoundedCornerShape(32.dp),
         textStyle = TextStyle(
-            fontSize = 14.sp  // ukuran font input
+            fontSize = 14.sp
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -215,7 +237,7 @@ fun FeatureItem(label: String, image: String, onClick: () -> Unit = {}) {
                 .clip(RoundedCornerShape(24.dp))
                 .background(Color(0xFFE0F7FA))
                 .padding(8.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Box(
                 modifier = Modifier
@@ -231,7 +253,9 @@ fun FeatureItem(label: String, image: String, onClick: () -> Unit = {}) {
                 )
             }
         }
-        Text(label, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
+        Text(label, fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = 8.dp), )
     }
 }
 
@@ -243,20 +267,24 @@ fun OnlineConsultationCard(navController: NavController) {
         modifier = Modifier
             .padding( horizontal = 24.dp, vertical = 16.dp)
             .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.frame_37a),
+                painter = painterResource(id = R.drawable.frame_60),
                 contentDescription = null,
-                modifier = Modifier.size(120.dp)
+                modifier = Modifier.size(110.dp)
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text("Online Vet Consultation", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("Chat with a veterinarian now!", fontSize = 12.sp)
+                Text(
+                    text = "Chat with a veterinarian now!",
+                    fontSize = 12.sp,
+                    color = Color(0xFFBD6B48)
+                )
                 Button(
                     onClick = {navController.navigate("health")},
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7)),
@@ -264,7 +292,7 @@ fun OnlineConsultationCard(navController: NavController) {
                 ) {
                     Text(
                         text = "Chat Now",
-                        style = MaterialTheme.typography.bodyLarge.copy(
+                        style = MaterialTheme.typography.titleMedium.copy(
                             fontSize = 14.sp,
                             color = Color(0xFFFAFAFA)
                         )
@@ -281,7 +309,7 @@ fun CommunitySection() {
     Text(
         "Meow Community",
         fontWeight = FontWeight.Bold,
-        fontSize = 18.sp,
+        fontSize = 16.sp,
         modifier = Modifier.padding(start = 24.dp, top = 8.dp)
     )
 
@@ -292,12 +320,12 @@ fun CommunitySection() {
         CommunityCard(
             title = "Apa itu Steril Kucing?",
             subtitle = "Syarat, Prosedur, Manfaat, dan Harganya!",
-            backgroundColor = Color(0xFFFFEBEE)
+            backgroundColor = Color(0xFFFFF3E0)
         )
         CommunityCard(
             title = "Pentingnya Vaksinasi pada Kucing!",
             subtitle = "Jenis, Tujuan, dan Manfaatnya!",
-            backgroundColor = Color(0xFFE1F5FE)
+            backgroundColor = Color(0xFFFFF3E0)
         )
     }
 }
@@ -315,31 +343,32 @@ fun CommunityCard(
             .height(200.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
+                .padding(14.dp),
         ) {
             Text(
                 text = title,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                color = Color.DarkGray
             )
             Text(
                 text = subtitle,
                 fontSize = 12.sp,
-                color = Color.DarkGray
+                color = Color(0xFFBD6B48)
             )
-            Spacer(modifier = Modifier.weight(1f)) // Mendorong tombol ke bawah
+            Spacer(modifier = Modifier.weight(1f))
             Button(
                 onClick = {},
                 modifier = Modifier.align(Alignment.End),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBBDEFB))
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7))
             ) {
-                Text("See More", color = Color.Black)
+                Text("See More", fontSize = 14.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold)
             }
         }
     }

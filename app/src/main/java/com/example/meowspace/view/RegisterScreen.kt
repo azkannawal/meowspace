@@ -48,13 +48,8 @@ fun RegisterScreen(
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Spacer(modifier = Modifier.height(16.dp))
-
-//        IconButton(onClick = onBackClick) {
-//            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-//        }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         Image(
             painter = painterResource(id = R.drawable.meowspace_logo_blue),

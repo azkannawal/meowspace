@@ -86,4 +86,7 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.34.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.30.1")
 }

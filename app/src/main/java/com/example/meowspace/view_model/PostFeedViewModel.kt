@@ -1,42 +1,41 @@
 package com.example.meowspace.view_model
 
+
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meowspace.data.UserRepository
-import com.example.meowspace.model.UserProfileResponse
+import com.example.meowspace.model.StatusResponse
 import kotlinx.coroutines.launch
 
-class ProfileViewModel(
+
+class PostFeedViewModel(
     private val repository: UserRepository
 ) : ViewModel() {
 
-    private val _userProfile = MutableLiveData<UserProfileResponse?>()
-    val userProfile: LiveData<UserProfileResponse?> = _userProfile
+    private val _postResult = MutableLiveData<StatusResponse?>()
+    val postResult: LiveData<StatusResponse?> = _postResult
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    fun loadProfile() {
+    fun postStatus(content: String) {
+        _isLoading.value = true
         viewModelScope.launch {
-            _isLoading.value = true
             try {
-                val response = repository.getUserProfile()
+                val response = repository.postStatus(content)
                 if (response.isSuccessful) {
-                    _userProfile.value = response.body()
+                    _postResult.value = response.body()
+                    Log.d("PostFeedViewModel", "Status created: ${response.body()?.content}")
                 } else {
-                    Log.e("ProfileViewModel", "Failed with code: ${response.code()}")
+                    Log.e("PostFeedViewModel", "Gagal: ${response.code()}")
                 }
             } catch (e: Exception) {
-                Log.e("ProfileViewModel", "Exception: ${e.message}")
-            } finally {
-                _isLoading.value = false
+                Log.e("PostFeedViewModel", "Exception: ${e.message}")
             }
+            _isLoading.value = false
         }
     }
 }
-
-
-

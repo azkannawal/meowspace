@@ -20,60 +20,99 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.ChatBubble
-import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Pets
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.meowspace.R
+import com.example.meowspace.data.UserRepository
+import com.example.meowspace.service.RetrofitInstance
+import com.example.meowspace.service.TokenManager
+import com.example.meowspace.view_model.FeedViewModel
 
 @Composable
-fun FeedScreen(navController: NavController, context: Context = LocalContext.current) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF9FCFF)),
-        contentPadding = PaddingValues(vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            StorySection()
-        }
+fun FeedScreen(navController: NavController, context: Context) {
 
-        items(4) { index ->
-            Box(modifier = Modifier.padding(horizontal = 24.dp)) {
-                PostCard(
-                    username = "Miko_kucing_jaksel",
-                    age = "3 years old",
-                    breed = "Mainecoon",
-                    caption = "Miko hari ini jalan sore dulu 🐾😻 btw tadi ketemu kucing oren dia berantem WKWKWKW bener2 dah",
-                    imageList = listOf(R.drawable.frame_51, R.drawable.frame_51),
-                    likeCount = "6.2k",
-                    commentCount = "2.1k",
-                    shareCount = "346"
-                )
+    val viewModel = remember {
+        val tokenManager = TokenManager(context)
+        val repository = UserRepository(
+            api = RetrofitInstance.userService,
+            tokenManager = tokenManager,
+            context = context
+        )
+        FeedViewModel(repository)
+    }
+
+    val responseList by viewModel.postResult.observeAsState()
+    val isLoading by viewModel.isLoading.observeAsState(false)
+
+    val posts = responseList ?: emptyList()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadFeed()
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF9FCFF)),
+                contentPadding = PaddingValues(vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    StorySection()
+                }
+
+                items(posts) { post ->
+                    Box(modifier = Modifier.padding(horizontal = 24.dp)) {
+                        PostCard(
+                            username = post.user?.fullName ?: "Unknown User",
+                            age = "Unknown",
+                            breed = "Unknown",
+                            caption = post.content,
+                            imageList = listOf(R.drawable.frame_51, R.drawable.frame_50),
+                            likeCount = "0",
+                            commentCount = "0",
+                            shareCount = "0"
+                        )
+                    }
+                }
             }
         }
+
+        AddPostButton(
+            onClick = { navController.navigate("upload") },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        )
     }
 }
 
@@ -115,6 +154,28 @@ fun StorySection() {
         }
     }
 }
+
+@Composable
+fun AddPostButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        shape = CircleShape,
+        containerColor = Color(0xFF00CFFF),
+        modifier = modifier.size(72.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = "Add Post",
+            tint = Color.White,
+            modifier = Modifier.size(36.dp)
+        )
+    }
+}
+
+
 
 @Composable
 fun PostCard(

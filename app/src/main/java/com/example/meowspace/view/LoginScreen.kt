@@ -1,13 +1,10 @@
 package com.example.meowspace.view
 
 import android.content.Context
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -15,12 +12,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,9 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.meowspace.R
-import com.example.meowspace.data.AuthRepository
+import com.example.meowspace.data.UserRepository
 import com.example.meowspace.service.RetrofitInstance
 import com.example.meowspace.service.TokenManager
 import com.example.meowspace.view_model.LoginViewModel
@@ -42,13 +36,14 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
 ) {
-    // Buat TokenManager & Repository manual
+
     val tokenManager = remember { TokenManager(context) }
     val viewModel = remember {
         LoginViewModel(
-            AuthRepository(
-                api = RetrofitInstance.authService,
-                tokenManager = tokenManager
+            UserRepository(
+                api = RetrofitInstance.userService,
+                tokenManager = tokenManager,
+                context = context
             )
         )
     }

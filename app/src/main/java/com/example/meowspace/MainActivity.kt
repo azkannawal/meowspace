@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalHospital
@@ -26,41 +25,40 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.example.meowspace.view.RegisterScreen
-import com.example.meowspace.view.LoginScreen
+import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.meowspace.ui.theme.MeowSpaceTheme
+import com.example.meowspace.view.AddCatProfile
+import com.example.meowspace.view.CatProfileScreen
+import com.example.meowspace.view.FeedScreen
+import com.example.meowspace.view.HealthScreen
 import com.example.meowspace.view.HomeScreen
+import com.example.meowspace.view.LoginScreen
+import com.example.meowspace.view.MarketScreen
+import com.example.meowspace.view.PostFeedScreen
 import com.example.meowspace.view.ProfileScreen
+import com.example.meowspace.view.RegisterScreen
 import com.example.meowspace.view.SplashScreen
 import com.example.meowspace.view.WelcomeScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import com.example.meowspace.view.CatProfileScreen
-import com.example.meowspace.view.FeedScreen
-import com.example.meowspace.view.HealthScreen
-import com.example.meowspace.view.MarketScreen
 
 @OptIn(ExperimentalAnimationApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Thread.sleep(1500)
+        Thread.sleep(1000)
         installSplashScreen()
 
         setContent {
@@ -70,7 +68,6 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = currentBackStack?.destination?.route
                 val showBottomBar = currentRoute in listOf("home", "profile", "feed", "market", "health")
                 val authRoutes = listOf("login", "register", "welcome")
-
 
                 Scaffold(
                     bottomBar = {
@@ -192,6 +189,14 @@ class MainActivity : ComponentActivity() {
                             val context = LocalContext.current
                             CatProfileScreen(navController, context)
                         }
+                        composable("upload") {
+                            val context = LocalContext.current
+                            PostFeedScreen(navController, context)
+                        }
+                        composable("addcatprofile") {
+                            val context = LocalContext.current
+                            AddCatProfile(navController, context)
+                        }
                     }
                 }
             }
@@ -211,14 +216,13 @@ fun CustomBottomBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .background(Color.White, shape = RoundedCornerShape(32.dp))
+            .background(Color.White)
             .padding(vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         ) {
             items.forEach { screen ->
                 val isSelected = currentRoute == screen
@@ -254,7 +258,7 @@ fun CustomBottomBar(
                     Icon(
                         imageVector = icon,
                         contentDescription = screen,
-                        tint = if (isSelected) Color.Black else Color.Gray
+                        tint = if (isSelected) Color(0xFF4FC3F7) else Color.Gray
                     )
                 }
             }

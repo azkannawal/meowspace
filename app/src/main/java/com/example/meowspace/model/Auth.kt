@@ -1,13 +1,11 @@
 package com.example.meowspace.model
 
-// RegisterRequest.kt
 data class RegisterRequest(
     val fullName: String,
     val email: String,
     val password: String
 )
 
-// LoginRequest.kt
 data class LoginRequest(
     val email: String,
     val password: String

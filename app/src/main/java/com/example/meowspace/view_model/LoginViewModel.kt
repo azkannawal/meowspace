@@ -3,17 +3,12 @@ package com.example.meowspace.view_model
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.meowspace.data.AuthRepository
+import com.example.meowspace.data.UserRepository
 import com.example.meowspace.model.LoginRequest
-import com.example.meowspace.service.AuthService
-import com.example.meowspace.service.RetrofitInstance
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class LoginViewModel(
-    private val repository: AuthRepository
+    private val repository: UserRepository
 ) : ViewModel() {
     var email by mutableStateOf("")
     var password by mutableStateOf("")

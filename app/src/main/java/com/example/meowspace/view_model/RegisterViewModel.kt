@@ -3,9 +3,7 @@ package com.example.meowspace.view_model
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.meowspace.data.AuthRepository
 import com.example.meowspace.model.RegisterRequest
-import com.example.meowspace.service.AuthService
 import com.example.meowspace.service.RetrofitInstance
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
@@ -41,7 +39,7 @@ class RegisterViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val request = RegisterRequest(fullName = name, email = email, password = password)
-                val response = RetrofitInstance.authService.register(request)
+                val response = RetrofitInstance.userService.register(request)
 
                 if (response.code() == 201 && response.body() != null) {
                     val user = response.body()!!.user
