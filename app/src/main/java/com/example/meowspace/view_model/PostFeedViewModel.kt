@@ -9,23 +9,25 @@ import androidx.lifecycle.viewModelScope
 import com.example.meowspace.data.UserRepository
 import com.example.meowspace.model.StatusResponse
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 class PostFeedViewModel(
     private val repository: UserRepository
 ) : ViewModel() {
-
     private val _postResult = MutableLiveData<StatusResponse?>()
     val postResult: LiveData<StatusResponse?> = _postResult
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
+    var selectedImageFile: File? = null
+
     fun postStatus(content: String) {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val response = repository.postStatus(content)
+                val response = repository.postStatus(content, selectedImageFile)
                 if (response.isSuccessful) {
                     _postResult.value = response.body()
                     Log.d("PostFeedViewModel", "Status created: ${response.body()?.content}")

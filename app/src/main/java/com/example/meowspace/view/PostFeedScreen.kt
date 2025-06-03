@@ -1,6 +1,9 @@
 package com.example.meowspace.view
 
 import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Brush
@@ -23,12 +25,14 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -38,20 +42,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.net.toUri
 import androidx.navigation.NavController
-import com.example.meowspace.R
+import coil.compose.rememberAsyncImagePainter
 import com.example.meowspace.data.UserRepository
 import com.example.meowspace.service.RetrofitInstance
 import com.example.meowspace.service.TokenManager
 import com.example.meowspace.view_model.PostFeedViewModel
-import com.example.meowspace.view_model.ProfileViewModel
-
+import java.io.File
 
 @Composable
 fun PostFeedScreen(navController: NavController, context: Context) {
@@ -63,6 +64,13 @@ fun PostFeedScreen(navController: NavController, context: Context) {
             context = context
         )
         PostFeedViewModel(repository)
+    }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            val file = uriToFile(uri, context)
+            viewModel.selectedImageFile = file
+        }
     }
 
     var content by remember { mutableStateOf("") }
@@ -90,23 +98,14 @@ fun PostFeedScreen(navController: NavController, context: Context) {
                     navController.popBackStack()
                 }
             )
-            Image(
-                painter = painterResource(id = R.drawable.meowspace_logo_blue),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-            )
         }
 
-        // Konten
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = Color.White,
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                // Draft dan Tombol Post
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -126,9 +125,15 @@ fun PostFeedScreen(navController: NavController, context: Context) {
                     )
                 }
 
+                if (isLoading) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Input konten
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it },
@@ -140,15 +145,29 @@ fun PostFeedScreen(navController: NavController, context: Context) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    "Everyone can reply",
-                    color = Color(0xFF00CFFF),
-                    fontSize = 14.sp
-                )
+                viewModel.selectedImageFile?.let { file ->
+                    Image(
+                        painter = rememberAsyncImagePainter(file.toUri()),
+                        contentDescription = "Cat Photo",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(onClick = {
+                    imagePickerLauncher.launch("image/*")
+                }) {
+                    Icon(Icons.Default.Image, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Pilih Gambar")
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
+                Text("Everyone can reply", color = Color(0xFF00CFFF), fontSize = 14.sp)
 
-                // Toolbar post
+                Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -161,17 +180,24 @@ fun PostFeedScreen(navController: NavController, context: Context) {
                     Icon(Icons.Default.MoreHoriz, contentDescription = null, tint = Color(0xFF00CFFF))
                 }
 
-                // Loading & Result
-                if (isLoading) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    CircularProgressIndicator()
-                }
-
                 postResult?.let {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Post berhasil dibuat!", color = Color.Green)
+                    LaunchedEffect(Unit) {
+                        navController.navigate("feed") {
+                            popUpTo("addCat") { inclusive = true }
+                        }
+                    }
                 }
             }
         }
     }
 }
+
+fun uriToFile(uri: Uri, context: Context): File {
+    val inputStream = context.contentResolver.openInputStream(uri)!!
+    val tempFile = File.createTempFile("temp_image", ".jpg", context.cacheDir)
+    tempFile.outputStream().use { outputStream ->
+        inputStream.copyTo(outputStream)
+    }
+    return tempFile
+}
+

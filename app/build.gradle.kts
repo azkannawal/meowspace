@@ -89,4 +89,5 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("com.google.accompanist:accompanist-permissions:0.30.1")
+    implementation("androidx.webkit:webkit:1.7.0")
 }

@@ -1,13 +1,14 @@
 package com.example.meowspace.view_model
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meowspace.model.RegisterRequest
 import com.example.meowspace.service.RetrofitInstance
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import org.json.JSONObject
 
 class RegisterViewModel : ViewModel() {
     var name by mutableStateOf("")
@@ -46,7 +47,9 @@ class RegisterViewModel : ViewModel() {
                     onSuccess()
                     println("Akun berhasil dibuat: ${user.fullName}")
                 } else {
-                    errorMessage = response.errorBody()?.string() ?: "Registrasi gagal"
+                    val errorJson = response.errorBody()?.string()
+                    val message = if (errorJson != null) JSONObject(errorJson).optString("message") else "Registrasi gagal"
+                    errorMessage = message
                 }
             } catch (e: Exception) {
                 errorMessage = "Gagal terhubung ke server"

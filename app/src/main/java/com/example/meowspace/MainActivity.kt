@@ -40,13 +40,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.meowspace.ui.theme.MeowSpaceTheme
 import com.example.meowspace.view.AddCatProfile
+import com.example.meowspace.view.BookHealthScreen
 import com.example.meowspace.view.CatProfileScreen
+import com.example.meowspace.view.ChatScreen
 import com.example.meowspace.view.FeedScreen
 import com.example.meowspace.view.HealthScreen
 import com.example.meowspace.view.HomeScreen
 import com.example.meowspace.view.LoginScreen
 import com.example.meowspace.view.MarketScreen
+import com.example.meowspace.view.PaymentScreen
 import com.example.meowspace.view.PostFeedScreen
+import com.example.meowspace.view.ProductDetailScreen
 import com.example.meowspace.view.ProfileScreen
 import com.example.meowspace.view.RegisterScreen
 import com.example.meowspace.view.SplashScreen
@@ -58,7 +62,7 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Thread.sleep(1000)
+        Thread.sleep(3000)
         installSplashScreen()
 
         setContent {
@@ -178,8 +182,7 @@ class MainActivity : ComponentActivity() {
                             FeedScreen(navController, context)
                         }
                         composable("market") {
-                            val context = LocalContext.current
-                            MarketScreen(navController, context)
+                            MarketScreen(navController)
                         }
                         composable("health") {
                             val context = LocalContext.current
@@ -196,6 +199,19 @@ class MainActivity : ComponentActivity() {
                         composable("addcatprofile") {
                             val context = LocalContext.current
                             AddCatProfile(navController, context)
+                        }
+                        composable("bookhealth") {
+                            BookHealthScreen(navController)
+                        }
+                        composable("chat") {
+                            ChatScreen(navController)
+                        }
+                        composable("payment/{snapToken}") { backStackEntry ->
+                            val snapToken = backStackEntry.arguments?.getString("snapToken") ?: ""
+                            PaymentScreen(snapToken = snapToken, navController = navController)
+                        }
+                        composable("detail") {
+                            ProductDetailScreen(navController)
                         }
                     }
                 }

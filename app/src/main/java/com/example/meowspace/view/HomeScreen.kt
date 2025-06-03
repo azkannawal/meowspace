@@ -42,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -52,10 +51,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.meowspace.R
 import com.example.meowspace.data.UserRepository
 import com.example.meowspace.service.RetrofitInstance
 import com.example.meowspace.service.TokenManager
+import com.example.meowspace.view_model.CatProfileViewModel
 import com.example.meowspace.view_model.ProfileViewModel
 
 @Composable
@@ -71,14 +72,27 @@ fun HomeScreen(navController: NavController, context: Context) {
         ProfileViewModel(repository)
     }
 
+    val catViewModel = remember {
+        val tokenManager = TokenManager(context)
+        val repository = UserRepository(
+            api = RetrofitInstance.userService,
+            tokenManager = tokenManager,
+            context = context
+        )
+        CatProfileViewModel(repository)
+    }
+
     val userProfile by viewModel.userProfile.observeAsState()
     val isLoading by viewModel.isLoading.observeAsState(true)
+    val catResponse by catViewModel.catResult.observeAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
+        catViewModel.loadCatProfile()
     }
 
     val userName = if (isLoading) "Loading..." else userProfile?.fullName ?: "Guest"
+    val cat = catResponse?.firstOrNull()
 
     Column(
             modifier = Modifier
@@ -86,14 +100,24 @@ fun HomeScreen(navController: NavController, context: Context) {
                 .verticalScroll(rememberScrollState())
                 .background(Color.White)
         ) {
+        if (cat?.photoUrl != null) {
             HeaderSection(
                 userName = userName,
-                userImage = painterResource(R.drawable.frame_36),
+                userImage = cat.photoUrl,
                 onAddProfileClick = {
                     navController.navigate("catprofile")
                 }
             )
-            SearchBar()
+        } else {
+            HeaderSection(
+                userName = userName,
+                userImage = "https://www.svgrepo.com/show/495590/profile-circle.svg",
+                onAddProfileClick = {
+                    navController.navigate("catprofile")
+                }
+            )
+        }
+         SearchBar()
             FeatureIcons(navController)
             OnlineConsultationCard(navController)
             CommunitySection()
@@ -125,7 +149,7 @@ fun FeatureIcons(navController: NavController) {
 @Composable
 fun HeaderSection(
     userName: String = "Kelo the Cat",
-    userImage: Painter,
+    userImage: String,
     onAddProfileClick: () -> Unit = {},
 ) {
     Box(
@@ -183,9 +207,9 @@ fun HeaderSection(
                 )
             }
 
-            Image(
-                painter = userImage,
-                contentDescription = "Profile Image",
+            AsyncImage(
+                model = userImage,
+                contentDescription = "Avatar",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(72.dp)
@@ -225,7 +249,7 @@ fun FeatureItem(label: String, image: String, onClick: () -> Unit = {}) {
     val interactionSource = remember { MutableInteractionSource() }
     val rippleColor = Color(0xFFFFFFFF) // Ripple transparan halus
 
-    Column(modifier = Modifier.clip(RoundedCornerShape(12.dp)) // biar ripple ada batasnya
+    Column(modifier = Modifier.clip(RoundedCornerShape(12.dp))
         .clickable(
             interactionSource = interactionSource,
             indication = rememberRipple(color = rippleColor),

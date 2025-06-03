@@ -3,6 +3,7 @@ package com.example.meowspace.view
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -98,7 +99,7 @@ fun HealthScreen(navController: NavController, context: Context = LocalContext.c
 
         // Doctor List
         items(4) {
-            DoctorCard()
+            DoctorCard(navController)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -106,7 +107,7 @@ fun HealthScreen(navController: NavController, context: Context = LocalContext.c
 
 
 @Composable
-fun DoctorCard() {
+fun DoctorCard(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -178,6 +179,9 @@ fun DoctorCard() {
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color(0xFFD8EFFF))
                         .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .clickable {
+                            navController.navigate("bookhealth")
+                        }
                 ) {
                     Text(
                         "Book Now",
@@ -188,6 +192,7 @@ fun DoctorCard() {
                         textAlign = TextAlign.Center
                     )
                 }
+
             }
         }
 

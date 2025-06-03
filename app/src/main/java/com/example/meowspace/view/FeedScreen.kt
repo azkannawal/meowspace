@@ -3,7 +3,6 @@ package com.example.meowspace.view
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.meowspace.R
 import com.example.meowspace.data.UserRepository
 import com.example.meowspace.service.RetrofitInstance
@@ -76,6 +75,17 @@ fun FeedScreen(navController: NavController, context: Context) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+
+        Image(
+            painter = painterResource(id = R.drawable.meowspace_logo_blue),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 16.dp)
+                .size(72.dp),
+            contentScale = ContentScale.Fit
+        )
+
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
@@ -86,30 +96,42 @@ fun FeedScreen(navController: NavController, context: Context) {
                 contentPadding = PaddingValues(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                item {
-                    StorySection()
-                }
+//                item {
+//                    StorySection()
+//                }
 
                 items(posts) { post ->
+                    val imageUrl = post.photoUrl
+                    val cat = post.user?.cats?.firstOrNull()
+                    val catUsername = cat?.username ?: "Unknown"
+                    val breed = cat?.breed ?: "Unknown"
+                    val age = cat?.birthDate?.let { calculateAge(it) } ?: "Unknown"
+                    val gender = cat?.gender ?: "Unknown"
+                    val photo = cat?.photoUrl ?: "Unknown"
+
                     Box(modifier = Modifier.padding(horizontal = 24.dp)) {
                         PostCard(
-                            username = post.user?.fullName ?: "Unknown User",
-                            age = "Unknown",
-                            breed = "Unknown",
+                            username = catUsername,
+                            age = age,
+                            breed = breed,
+                            gender= gender,
                             caption = post.content,
-                            imageList = listOf(R.drawable.frame_51, R.drawable.frame_50),
+                            imageList = listOfNotNull(imageUrl),
                             likeCount = "0",
                             commentCount = "0",
-                            shareCount = "0"
+                            shareCount = "0",
+                            photourl = photo,
                         )
                     }
                 }
+
             }
         }
 
         AddPostButton(
             onClick = { navController.navigate("upload") },
             modifier = Modifier
+
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         )
@@ -117,43 +139,43 @@ fun FeedScreen(navController: NavController, context: Context) {
 }
 
 
-@Composable
-fun StorySection() {
-    val names = listOf("You", "Mikothecat", "Kucingoren", "Morganisa_", "Kitty", "Rock", "More")
-    LazyRow(
-        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        items(names) { name ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .border(3.dp, Color.LightGray, CircleShape)
-                        .background(Color.White)
-                        .padding(2.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.frame_36),
-                        contentDescription = "Story",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(CircleShape)
-                    )
-                }
-                Text(
-                    text = name,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-        }
-    }
-}
+//@Composable
+//fun StorySection() {
+//    val names = listOf("You", "Mikothecat", "Kucingoren", "Morganisa_", "Kitty", "Rock", "More")
+//    LazyRow(
+//        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 24.dp),
+//        horizontalArrangement = Arrangement.spacedBy(12.dp),
+//        modifier = Modifier.fillMaxWidth()
+//    ) {
+//        items(names) { name ->
+//            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                Box(
+//                    modifier = Modifier
+//                        .size(64.dp)
+//                        .clip(CircleShape)
+//                        .border(3.dp, Color.LightGray, CircleShape)
+//                        .background(Color.White)
+//                        .padding(2.dp)
+//                ) {
+//                    Image(
+//                        painter = painterResource(id = R.drawable.frame_36),
+//                        contentDescription = "Story",
+//                        contentScale = ContentScale.Crop,
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .clip(CircleShape)
+//                    )
+//                }
+//                Text(
+//                    text = name,
+//                    fontSize = 12.sp,
+//                    fontWeight = FontWeight.Medium,
+//                    modifier = Modifier.padding(top = 4.dp)
+//                )
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun AddPostButton(
@@ -175,18 +197,18 @@ fun AddPostButton(
     }
 }
 
-
-
 @Composable
 fun PostCard(
     username: String,
     age: String,
     breed: String,
     caption: String,
-    imageList: List<Int>,
+    gender: String,
+    imageList: List<String>,
     likeCount: String,
     commentCount: String,
-    shareCount: String
+    shareCount: String,
+    photourl: String
 ) {
     Column(
         modifier = Modifier
@@ -195,19 +217,23 @@ fun PostCard(
             .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.frame_36),
+            AsyncImage(
+                model = photourl ?: R.drawable.frame_36,
                 contentDescription = "Avatar",
                 modifier = Modifier
                     .size(48.dp)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(id = R.drawable.frame_36),
+                error = painterResource(id = R.drawable.frame_36)
             )
+
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(username, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    InfoChip("Male", Color(0xFF1E3A5F))
+                    InfoChip(gender, Color(0xFF1E3A5F))
                     InfoChip(age, Color(0xFFFFA63A))
                     InfoChip(breed, Color(0xFF1E3A5F))
                 }
@@ -226,9 +252,9 @@ fun PostCard(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(top = 12.dp)
         ) {
-            imageList.forEach {
-                Image(
-                    painter = painterResource(id = it),
+            imageList.forEach { imageUrl ->
+                AsyncImage(
+                    model = imageUrl,
                     contentDescription = null,
                     modifier = Modifier
                         .weight(1f)

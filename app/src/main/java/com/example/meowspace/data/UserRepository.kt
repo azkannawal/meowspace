@@ -2,7 +2,7 @@ package com.example.meowspace.data
 
 import android.content.Context
 import com.example.meowspace.model.AuthResponse
-import com.example.meowspace.model.CreateStatusRequest
+import com.example.meowspace.model.Cat
 import com.example.meowspace.model.LoginRequest
 import com.example.meowspace.model.RegisterRequest
 import com.example.meowspace.model.StatusResponse
@@ -49,13 +49,18 @@ class UserRepository(
         return api.getProfile("Bearer $token")
     }
 
-    suspend fun postStatus(content: String): Response<StatusResponse> {
+    suspend fun postStatus(content: String, photoFile: File?): Response<StatusResponse> {
         val token = TokenManager(context).getToken()
             ?: throw IllegalStateException("Token is null")
-
+        val contentPart = content.toRequestBody("text/plain".toMediaType())
+        val photoPart = photoFile?.let {
+            val requestFile = it.asRequestBody("image/*".toMediaType())
+            MultipartBody.Part.createFormData("photo", it.name, requestFile)
+        }
         return api.postStatus(
             token = "Bearer $token",
-            request = CreateStatusRequest(content)
+            content = contentPart,
+            photo = photoPart
         )
     }
 
@@ -64,6 +69,13 @@ class UserRepository(
             ?: throw IllegalStateException("Token is null")
 
         return api.getStatuses("Bearer $token")
+    }
+
+    suspend fun getCats(): List<Cat> {
+        val token = TokenManager(context).getToken()
+            ?: throw IllegalStateException("Token is null")
+
+        return api.getCats("Bearer $token")
     }
 
     suspend fun uploadCat(

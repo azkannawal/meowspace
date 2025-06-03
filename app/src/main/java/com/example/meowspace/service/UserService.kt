@@ -1,9 +1,11 @@
 package com.example.meowspace.service
 
 import com.example.meowspace.model.AuthResponse
-import com.example.meowspace.model.CreateStatusRequest
+import com.example.meowspace.model.Cat
 import com.example.meowspace.model.LoginRequest
 import com.example.meowspace.model.LoginResponse
+import com.example.meowspace.model.MidtransRequest
+import com.example.meowspace.model.MidtransResponse
 import com.example.meowspace.model.RegisterRequest
 import com.example.meowspace.model.StatusResponse
 import com.example.meowspace.model.UploadResponse
@@ -30,16 +32,23 @@ interface UserService {
         @Header("Authorization") token: String
     ): Response<UserProfileResponse>
 
+    @Multipart
     @POST("users/statuses")
     suspend fun postStatus(
         @Header("Authorization") token: String,
-        @Body request: CreateStatusRequest
+        @Part("content") content: RequestBody,
+        @Part photo: MultipartBody.Part? = null
     ): Response<StatusResponse>
 
     @GET("users/statuses")
     suspend fun getStatuses(
         @Header("Authorization") token: String
     ): Response<List<StatusResponse>>
+
+    @GET("users/catprofile")
+    suspend fun getCats(
+        @Header("Authorization") token: String
+    ): List<Cat>
 
     @Multipart
     @POST("users/catprofile")
@@ -52,4 +61,9 @@ interface UserService {
         @Part("gender") gender: RequestBody,
         @Part("breed") breed: RequestBody
     ): Response<UploadResponse>
+
+    @POST("payments/create-transaction")
+    suspend fun createTransaction(
+        @Body request: MidtransRequest
+    ): MidtransResponse
 }

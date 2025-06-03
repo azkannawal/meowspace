@@ -3,13 +3,13 @@ package com.example.meowspace.view
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,15 +21,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -50,11 +50,25 @@ import com.example.meowspace.R
 
 @Composable
 fun MarketScreen(navController: NavController, context: Context = LocalContext.current) {
+
+    val banner = listOf(
+        R.drawable.frame_50, R.drawable.frame_50, R.drawable.frame_50,
+        R.drawable.frame_50, R.drawable.frame_50
+    )
+
+    val categories = listOf(
+        R.drawable.frame_48, R.drawable.frame_49,
+        R.drawable.frame_48, R.drawable.frame_49,
+        R.drawable.frame_48,
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .background(Color.White)
     ) {
+        // Search bar & icons
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -65,39 +79,21 @@ fun MarketScreen(navController: NavController, context: Context = LocalContext.c
                 value = "",
                 onValueChange = {},
                 placeholder = { Text("Search...") },
-                leadingIcon = {
-                    Icon(Icons.Default.Search, contentDescription = null)
-                },
-                modifier = Modifier
-                    .weight(1f),
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(24.dp),
                 singleLine = true
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Icon(
-                imageVector = Icons.Default.Notifications,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
+            Icon(Icons.Default.Notifications, contentDescription = null, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
+            Icon(Icons.Default.FavoriteBorder, contentDescription = null, modifier = Modifier.size(24.dp))
         }
 
-        val banner = listOf(
-            R.drawable.frame_50,
-            R.drawable.frame_50,
-            R.drawable.frame_50,
-            R.drawable.frame_50,
-            R.drawable.frame_50,
-        )
-
+        // Banner
         LazyRow(
-            contentPadding = PaddingValues(start = 24.dp, end = 24.dp),
-            modifier = Modifier.padding(vertical = 0.dp)
+            contentPadding = PaddingValues(horizontal = 24.dp),
+            modifier = Modifier.padding(vertical = 16.dp)
         ) {
             itemsIndexed(banner) { index, bannerResId ->
                 Image(
@@ -110,78 +106,65 @@ fun MarketScreen(navController: NavController, context: Context = LocalContext.c
             }
         }
 
+        // Top Categories Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "Top Categories",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 16.sp,
-                )
-            )
-
+            Text("Top Categories", style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp))
             Text("See All", color = Color.Blue, fontSize = 14.sp)
         }
 
-        val images = listOf(
-            R.drawable.frame_48,
-            R.drawable.frame_49,
-            R.drawable.frame_48,
-            R.drawable.frame_49,
-            R.drawable.frame_48,
-            R.drawable.frame_49,
-            R.drawable.frame_48,
-        )
-
+        // Categories
         LazyRow(
-            contentPadding = PaddingValues(start = 24.dp, end = 24.dp),
+            contentPadding = PaddingValues(horizontal = 24.dp),
             modifier = Modifier.padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(images) {imageResId ->
-                    Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .shadow(
-                                elevation = 2.dp,
-                                shape = RoundedCornerShape(24.dp),
-                            )
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(Color.White)
-                            .padding(8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = imageResId),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(36.dp)
-                        )
-                    }
+            items(categories) { imageResId ->
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .shadow(2.dp, RoundedCornerShape(24.dp))
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color.White)
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = imageResId),
+                        contentDescription = null,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
             }
         }
 
-        // Grid Product List
+        // Product Grid Title
+        Text(
+            "Recommended Products",
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+        )
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
-                .fillMaxWidth()
+                .height(900.dp)
                 .padding(horizontal = 24.dp)
         ) {
             items(8) {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    modifier = Modifier.fillMaxWidth().clickable{navController.navigate("detail")},
                     shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(
-                    ) {
+                    Column {
                         Image(
                             painter = painterResource(id = R.drawable.frame_47),
                             contentDescription = null,
@@ -190,7 +173,9 @@ fun MarketScreen(navController: NavController, context: Context = LocalContext.c
                                 .height(110.dp),
                             contentScale = ContentScale.Crop
                         )
-                        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp)) {
                             Text("Cat Bed", style = MaterialTheme.typography.bodyLarge)
                             Text("Rp 159k", color = Color.Gray)
                             Icon(
@@ -203,5 +188,7 @@ fun MarketScreen(navController: NavController, context: Context = LocalContext.c
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
