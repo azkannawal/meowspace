@@ -146,7 +146,7 @@ fun AddCatProfile(navController: NavController, context: Context) {
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .background(Color.White)
+                .background(Color.Gray)
         ) {
             if (photoFile != null) {
                 Image(
@@ -158,18 +158,18 @@ fun AddCatProfile(navController: NavController, context: Context) {
                 Icon(
                     imageVector = Icons.Default.Pets,
                     contentDescription = "Cat Icon",
-                    tint = Color.Gray,
-                    modifier = Modifier.size(64.dp)
+                    tint = Color.White,
+                    modifier = Modifier.size(50.dp).offset(x = (-36).dp, y = (-36).dp)
                 )
-            }
-            IconButton(
-                onClick = { launcher.launch("image/*") },
-                modifier = Modifier
-                    .offset(x = (-8).dp, y = (-8).dp)
-                    .background(Color.Cyan, CircleShape)
-                    .size(24.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Image", tint = Color.White)
+                IconButton(
+                    onClick = { launcher.launch("image/*") },
+                    modifier = Modifier
+                        .offset(x = (-30).dp, y = (-36).dp)
+                        .background(Color.Cyan, CircleShape)
+                        .size(24.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Image", tint = Color.White)
+                }
             }
         }
 
@@ -246,10 +246,10 @@ fun AddCatProfile(navController: NavController, context: Context) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            GenderButton("male", gender == "male") {
+            GenderButton("Male", gender == "male") {
                 viewModel.gender.value = "male"
             }
-            GenderButton("female", gender == "female") {
+            GenderButton("Female", gender == "female") {
                 viewModel.gender.value = "female"
             }
         }
@@ -294,7 +294,7 @@ fun GenderButton(text: String, selected: Boolean, onClick: () -> Unit) {
         onClick = onClick,
         shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected) Color.Gray else Color.White
+            containerColor = if (selected) Color(0xFFFF8A00) else Color.White
         )
     ) {
         Text(text = text, color = if (selected) Color.White else Color.Black)

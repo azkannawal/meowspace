@@ -1,6 +1,8 @@
 package com.example.meowspace.view_model
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meowspace.data.UserRepository
@@ -23,10 +25,10 @@ class LoginViewModel(
     fun login(onSuccess: () -> Unit) {
         if (email.isBlank() || password.isBlank() || password.length < 8 || !isValidEmail(email)) {
             errorMessage = when {
-                email.isBlank() || password.isBlank() -> "Isi semua field dengan benar"
-                !isValidEmail(email) -> "Format email tidak valid"
-                password.length < 8 -> "Password minimal 8 karakter"
-                else -> "Terjadi kesalahan"
+                email.isBlank() || password.isBlank() -> "Please fill in all fields correctly"
+                !isValidEmail(email) -> "Invalid email format"
+                password.length < 8 -> "Password must be at least 8 characters"
+                else -> "An error occurred"
             }
             return
         }

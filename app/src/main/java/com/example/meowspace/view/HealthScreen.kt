@@ -20,10 +20,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,12 +41,36 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.meowspace.R
+import com.example.meowspace.data.UserRepository
+import com.example.meowspace.service.RetrofitInstance
+import com.example.meowspace.service.TokenManager
 import com.example.meowspace.ui.theme.LexendFont
+import com.example.meowspace.view_model.CatProfileViewModel
 
 
 @Composable
 fun HealthScreen(navController: NavController, context: Context = LocalContext.current) {
+
+    val catViewModel = remember {
+        val tokenManager = TokenManager(context)
+        val repository = UserRepository(
+            api = RetrofitInstance.userService,
+            tokenManager = tokenManager,
+            context = context
+        )
+        CatProfileViewModel(repository)
+    }
+
+    val catResponse by catViewModel.catResult.observeAsState()
+
+    LaunchedEffect(Unit) {
+        catViewModel.loadCatProfile()
+    }
+
+    val cat = catResponse?.firstOrNull()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -56,21 +83,38 @@ fun HealthScreen(navController: NavController, context: Context = LocalContext.c
                     .fillMaxWidth()
                     .padding(start = 24.dp, top = 24.dp, end = 24.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.frame_36),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text("Kelo the Cat", fontWeight = FontWeight.Bold)
-                    Text("Malang, Indonesia", fontSize = 12.sp)
+
+                if (cat?.photoUrl != null){
+                    AsyncImage(
+                        model = cat.photoUrl,
+                        contentDescription = "Cover Photo",
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.meowspace_logo_blue),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                    )
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
+
+                if (cat?.name != null){
+                    Column {
+                        Text(cat.name, fontWeight = FontWeight.Bold)
+                        Text(cat.breed, fontSize = 12.sp)
+                    }
+                }else{
+                    Column {
+                        Text("No Cat Profile", fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
                 Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = null)
             }
 

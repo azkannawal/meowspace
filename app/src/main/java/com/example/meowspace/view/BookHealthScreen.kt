@@ -1,5 +1,6 @@
 package com.example.meowspace.view
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,7 +31,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,9 +47,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.meowspace.R
+import com.example.meowspace.data.UserRepository
 import com.example.meowspace.model.MidtransRequest
 import com.example.meowspace.service.RetrofitInstance
+import com.example.meowspace.service.TokenManager
+import com.example.meowspace.view_model.CatProfileViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,8 +61,26 @@ import kotlinx.coroutines.withContext
 import java.util.UUID
 
 @Composable
-fun BookHealthScreen(navController: NavController) {
+fun BookHealthScreen(navController: NavController, context: Context) {
     var selectedCat by remember { mutableStateOf<String?>(null) }
+
+    val catViewModel = remember {
+        val tokenManager = TokenManager(context)
+        val repository = UserRepository(
+            api = RetrofitInstance.userService,
+            tokenManager = tokenManager,
+            context = context
+        )
+        CatProfileViewModel(repository)
+    }
+
+    val catResponse by catViewModel.catResult.observeAsState()
+
+    LaunchedEffect(Unit) {
+        catViewModel.loadCatProfile()
+    }
+
+    val cat = catResponse?.firstOrNull()
 
     Column(
         modifier = Modifier
@@ -102,7 +127,7 @@ fun BookHealthScreen(navController: NavController) {
                         Text("2 Years of Experience", fontSize = 12.sp, color = Color.Gray)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text("Rp.", fontSize = 12.sp)
-                        Text("40k", fontWeight = FontWeight.ExtraBold, fontSize = 28.sp)
+                        Text("89k", fontWeight = FontWeight.ExtraBold, fontSize = 28.sp)
                     }
                 }
 
@@ -152,13 +177,18 @@ fun BookHealthScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        CatSelector("Kelo The Cat", R.drawable.frame_36, selectedCat == "Kelo The Cat") {
-            selectedCat = if (selectedCat == "Kelo The Cat") null else "Kelo The Cat"
+        if (cat?.name != null){
+        CatSelector(cat.name, cat.photoUrl, selectedCat == cat.name) {
+            selectedCat = if (selectedCat == cat.name) null else cat.name
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        CatSelector("Kiehl Anak Kelo", R.drawable.frame_36, selectedCat == "Kiehl Anak Kelo") {
-            selectedCat = if (selectedCat == "Kiehl Anak Kelo") null else "Kiehl Anak Kelo"
+        }else{
+            Text("Add your cat first", fontWeight = FontWeight.Bold)
         }
+
+//        Spacer(modifier = Modifier.height(8.dp))
+//        CatSelector("Kiehl Anak Kelo", R.drawable.frame_36, selectedCat == "Kiehl Anak Kelo") {
+//            selectedCat = if (selectedCat == "Kiehl Anak Kelo") null else "Kiehl Anak Kelo"
+//        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -167,7 +197,7 @@ fun BookHealthScreen(navController: NavController) {
                 val orderId = UUID.randomUUID().toString()
                 val paymentRequest = MidtransRequest(
                     orderId = orderId,
-                    grossAmount = 40000,
+                    grossAmount = 89000,
                     fullName = "Jane Doe",
                     email = "janedoe@gmail.com"
                 )
@@ -197,7 +227,7 @@ fun BookHealthScreen(navController: NavController) {
 }
 
 @Composable
-fun CatSelector(name: String, photoRes: Int, selected: Boolean, onClick: () -> Unit) {
+fun CatSelector(name: String, photoRes: String, selected: Boolean, onClick: () -> Unit) {
     val backgroundColor = if (selected) Color(0xFFFF8C2F) else Color(0xFFF5F5F5)
 
     Row(
@@ -208,9 +238,9 @@ fun CatSelector(name: String, photoRes: Int, selected: Boolean, onClick: () -> U
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = photoRes),
-            contentDescription = name,
+        AsyncImage(
+            model = photoRes,
+            contentDescription = "Cover Photo",
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape),

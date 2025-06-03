@@ -1,5 +1,7 @@
 package com.example.meowspace.model
 
+import com.google.gson.annotations.SerializedName
+
 data class RegisterRequest(
     val fullName: String,
     val email: String,
@@ -29,4 +31,8 @@ data class UserProfileResponse(
     val id: Int,
     val fullName: String,
     val email: String
+)
+
+data class ErrorResponse(
+    @SerializedName("message") val message: String
 )

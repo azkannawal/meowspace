@@ -31,7 +31,6 @@ fun WelcomeScreen(
     onNavigateToRegister: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()

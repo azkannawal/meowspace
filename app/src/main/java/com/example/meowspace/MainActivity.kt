@@ -201,7 +201,8 @@ class MainActivity : ComponentActivity() {
                             AddCatProfile(navController, context)
                         }
                         composable("bookhealth") {
-                            BookHealthScreen(navController)
+                            val context = LocalContext.current
+                            BookHealthScreen(navController, context)
                         }
                         composable("chat") {
                             ChatScreen(navController)

@@ -27,11 +27,11 @@ class RegisterViewModel : ViewModel() {
     fun register(onSuccess: () -> Unit) {
         if (name.isBlank() || email.isBlank() || password.length < 8 || confirmPassword != password || !isValidEmail(email)) {
             errorMessage = when {
-                name.isBlank() || email.isBlank() || password.isBlank() -> "Isi semua field dengan benar"
-                !isValidEmail(email) -> "Format email tidak valid"
-                password.length < 8 -> "Password minimal 8 karakter"
-                password != confirmPassword -> "Password tidak cocok"
-                else -> "Terjadi kesalahan"
+                name.isBlank() || email.isBlank() || password.isBlank() -> "Please fill in all fields correctly"
+                !isValidEmail(email) -> "Invalid email format"
+                password.length < 8 -> "Password must be at least 8 characters"
+                password != confirmPassword -> "Passwords do not match"
+                else -> "An error occurred"
             }
             return
         }

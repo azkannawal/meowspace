@@ -403,7 +403,7 @@ fun VariantSelector(navController: NavController) {
                     val orderId = UUID.randomUUID().toString()
                     val paymentRequest = MidtransRequest(
                         orderId = orderId,
-                        grossAmount = 150000*quantity,
+                        grossAmount = 159000*quantity,
                         fullName = "Jane Doe",
                         email = "janedoe@gmail.com"
                     )

@@ -3,6 +3,7 @@ package com.example.meowspace.data
 import android.content.Context
 import com.example.meowspace.model.AuthResponse
 import com.example.meowspace.model.Cat
+import com.example.meowspace.model.ErrorResponse
 import com.example.meowspace.model.LoginRequest
 import com.example.meowspace.model.RegisterRequest
 import com.example.meowspace.model.StatusResponse
@@ -10,6 +11,7 @@ import com.example.meowspace.model.UploadResponse
 import com.example.meowspace.model.UserProfileResponse
 import com.example.meowspace.service.TokenManager
 import com.example.meowspace.service.UserService
+import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -35,8 +37,15 @@ class UserRepository(
                 tokenManager.saveToken(token)
                 Result.success(token)
             } else {
-                Result.failure(Exception("Login failed: ${response.message()}"))
+                val errorBody = response.errorBody()?.string()
+                val errorMessage = try {
+                    Gson().fromJson(errorBody, ErrorResponse::class.java).message
+                } catch (e: Exception) {
+                    "Login failed"
+                }
+                Result.failure(Exception(errorMessage))
             }
+
         } catch (e: Exception) {
             Result.failure(e)
         }

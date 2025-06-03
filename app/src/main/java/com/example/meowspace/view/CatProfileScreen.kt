@@ -125,7 +125,6 @@ fun CatProfileScreen(navController: NavController, context: Context) {
                 )
             }
 
-            // Profile photo
             Box(
                 modifier = Modifier
                     .offset(y = (-40).dp)
@@ -173,19 +172,33 @@ fun CatProfileScreen(navController: NavController, context: Context) {
             }
 
             Text(cat?.name ?: "Unknown", style = MaterialTheme.typography.titleLarge)
-            Text("@${cat?.username ?: "no_username"}", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
 
-            Row(
-                modifier = Modifier.padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                    Text("0", style = MaterialTheme.typography.titleMedium)
-                    Text("Followers", style = MaterialTheme.typography.labelSmall)
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                    Text("1", style = MaterialTheme.typography.titleMedium)
-                    Text("Following", style = MaterialTheme.typography.labelSmall)
+            Text(
+                text = "@${cat?.username ?: "username not set"}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+
+
+            if (cat != null) {
+                Row(
+                    modifier = Modifier.padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("0", style = MaterialTheme.typography.titleMedium)
+                        Text("Followers", style = MaterialTheme.typography.labelSmall)
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("1", style = MaterialTheme.typography.titleMedium)
+                        Text("Following", style = MaterialTheme.typography.labelSmall)
+                    }
                 }
             }
 
